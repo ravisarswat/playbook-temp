@@ -1,0 +1,27 @@
+---
+- name: Ensure password reuse is limited #ansible-galaxy collection install community.general
+  hosts: all
+  become: yes
+  tasks:
+  - block:
+          - name: Insert a new rule before an existing rule
+            community.general.pamd:
+             name: system-auth
+             type: password
+             control: requisite
+             module_path: pam_pwquality.so
+             module_arguments: 'try_first_pass local_users_only enforce-for-root retry=3 remember=5'
+             state: updated
+
+          - name: Insert a new rule before an existing rule
+            community.general.pamd:
+             name: system-auth
+             type: password
+             control: sufficient
+             module_path: pam_unix.so
+             module_arguments: 'sha512 shadow try_first_pass use_authtok remember=5'
+             state: updated
+
+
+
+    when: ansible_facts['os_family'] == 'RedHat' and ansible_facts['distribution_major_version'] == '8'
