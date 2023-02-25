@@ -3,6 +3,7 @@
   hosts: all
   become: true
   tasks:
+  - block:
     - name: Check if block of lines already present in file
       blockinfile:
         path: /etc/pam.d/system-auth
@@ -35,3 +36,5 @@
       debug:
         msg: "Block of lines inserted in /etc/pam.d/password-auth file."
       when: block_inserted_password_auth.changed
+    
+    when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
