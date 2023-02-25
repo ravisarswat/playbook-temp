@@ -1,0 +1,37 @@
+---
+- name: Insert block of text after specific line in file
+  hosts: all
+  become: true
+  tasks:
+    - name: Check if block of lines already present in file
+      blockinfile:
+        path: /etc/pam.d/system-auth
+        block: |
+          auth required pam_faillock.so preauth silent audit deny=5 unlock_time=900
+          auth sufficient pam_unix.so nullok try_first_pass
+          auth [default=die] pam_faillock.so authfail audit deny=5 unlock_time=900
+        insertafter: 'auth        required      pam_env.so'
+        backup: yes
+      register: block_inserted_system_auth
+
+    - name: Print debug message if block is inserted
+      debug:
+        msg: "Block of lines inserted in /etc/pam.d/system-auth file."
+      when: block_inserted_system_auth.changed
+
+      
+    - name: Check if block of lines already present in file
+      blockinfile:
+        path: /etc/pam.d/password-auth
+        block: |
+          auth required pam_faillock.so preauth silent audit deny=5 unlock_time=900
+          auth sufficient pam_unix.so nullok try_first_pass
+          auth [default=die] pam_faillock.so authfail audit deny=5 unlock_time=900
+        insertafter: 'auth        required      pam_env.so'
+        backup: yes
+      register: block_inserted_password_auth
+
+    - name: Print debug message if block is inserted
+      debug:
+        msg: "Block of lines inserted in /etc/pam.d/password-auth file."
+      when: block_inserted_password_auth.changed
